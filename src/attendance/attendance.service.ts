@@ -176,18 +176,18 @@ export class AttendanceService {
     // }
 
     let session = await this.classSessionModel.findOne({ courseId: course._id as any, isAttendanceOpen: true });
-    
+
     if (!session) {
       session = new this.classSessionModel({
         courseId: course._id as any,
-        title: `คาบเรียนวิชา ${course.courseCode}`, 
+        title: `คาบเรียนวิชา ${course.courseCode}`,
         scheduledStart: new Date(),
-        scheduledEnd: new Date(Date.now() + 3 * 60 * 60 * 1000), 
+        scheduledEnd: new Date(Date.now() + 3 * 60 * 60 * 1000),
         createdBy: teacherId as any,
         openedBy: teacherId as any,
         isAttendanceOpen: true,
       });
-      await session.save(); 
+      await session.save();
       this.logger.log(`Successfully opened new session for Course ID: ${courseId}`);
     }
 
@@ -202,26 +202,26 @@ export class AttendanceService {
 
   async closeSession(courseId: string, teacherId: string): Promise<any> {
     this.logger.log(`Attempting to close session for Course ID: ${courseId}`);
-    
+
     const course = await this.courseModel.findById(courseId);
     if (!course) throw new NotFoundException('ไม่พบรายวิชา');
-    
+
     // this.validateOwnership(course.teacherId, teacherId);
 
-    const session = await this.classSessionModel.findOne({ 
-      courseId: course._id as any, 
-      isAttendanceOpen: true 
+    const session = await this.classSessionModel.findOne({
+      courseId: course._id as any,
+      isAttendanceOpen: true
     });
-    
+
     // [✅ อัปเดตตรงนี้] ถ้าไม่เจอคาบที่เปิดอยู่ ไม่ต้อง Throw Error แล้ว 
     // ให้ระบบซิงค์ข้อมูลให้ถูกต้อง แล้วส่ง Success กลับไปเลย
     if (!session) {
       this.logger.warn(`No active session found for Course ID: ${courseId}. Auto-correcting course status.`);
       await this.courseModel.updateOne({ _id: course._id }, { $set: { isActive: false } });
-      
+
       return { success: true, message: 'ปิดคาบเรียนสำเร็จ (ซิงค์สถานะอัตโนมัติ)' };
     }
-    
+
     // อัปเดตตาราง ClassSession
     await this.classSessionModel.updateOne(
       { _id: session._id },
@@ -233,7 +233,7 @@ export class AttendanceService {
       { _id: course._id },
       { $set: { isActive: false } }
     );
-    
+
     this.logger.log(`Successfully closed session for Course ID: ${courseId}`);
     return { success: true, message: 'ปิดคาบเรียนสำเร็จ' };
   }
@@ -299,7 +299,7 @@ export class AttendanceService {
         $set: {
           status: dto.status,
           recordedBy: studentId as any,
-          courseId: session.courseId, 
+          courseId: session.courseId,
           classDate: new Date(new Date().setHours(0, 0, 0, 0)),
         }
       },

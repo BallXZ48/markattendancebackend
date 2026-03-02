@@ -6,8 +6,25 @@ import {
   IsBoolean,
   IsArray,
   IsMongoId,
+  ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+
+export class LocationDto {
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  latitude?: number;
+
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  longitude?: number;
+
+  @IsString()
+  @IsOptional()
+  building?: string;
+}
 
 export class CreateCourseDto {
   @IsString()
@@ -27,32 +44,47 @@ export class CreateCourseDto {
   teacherId: string;
 
   @IsString()
-  @IsNotEmpty()
-  department: string;
+  @IsOptional()
+  department?: string;
+
+  @ValidateNested()
+  @Type(() => LocationDto)
+  @IsOptional()
+  location?: LocationDto;
 
   @IsString()
-  @IsNotEmpty()
-  roomLocation: string;
+  @IsOptional()
+  roomLocation?: string;
+
+  // 👇 เพิ่มตารางสอน เพื่อใช้ผูกกับระบบเช็คเวลา
+  @IsString()
+  @IsOptional()
+  schedule?: string;
+
+  // 👇 เพิ่ม isActive
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean;
 
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   @Type(() => Number)
-  semester: number;
+  semester?: number;
 
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   @Type(() => Number)
-  academicYear: number;
+  academicYear?: number;
 
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   @Type(() => Number)
-  totalClasses: number;
+  totalClasses?: number;
 
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   @Type(() => Number)
-  credits: number;
+  credits?: number;
 
   @IsArray()
   @IsMongoId({ each: true })
@@ -73,9 +105,14 @@ export class UpdateCourseDto {
   @IsOptional()
   teacherId?: string;
 
+  @ValidateNested()
+  @Type(() => LocationDto)
+  @IsOptional()
+  location?: LocationDto;
+
   @IsString()
   @IsOptional()
-  roomLocation?: string;
+  schedule?: string;
 
   @IsNumber()
   @IsOptional()

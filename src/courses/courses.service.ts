@@ -18,7 +18,7 @@ import {
 export class CoursesService {
   constructor(
     @InjectModel(Course.name) private courseModel: Model<CourseDocument>,
-  ) {}
+  ) { }
 
   async create(createCourseDto: CreateCourseDto): Promise<Course> {
     const existingCourse = await this.courseModel.findOne({
@@ -31,6 +31,7 @@ export class CoursesService {
 
     const course = new this.courseModel({
       ...createCourseDto,
+      location: createCourseDto.location, // ตรวจสอบให้แน่ใจว่าเพิ่มส่วนนี้
       teacherId: createCourseDto.teacherId,
       studentIds: createCourseDto.studentIds || [],
     });
@@ -151,4 +152,4 @@ export class CoursesService {
     const course = await this.courseModel.findById(courseId);
     return !!course;
   }
-}
+} 
